@@ -1,0 +1,51 @@
+{
+  "name": "pwa-demo-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:server": "DEBUG=app,app:* nodemon app.js"
+  },
+  "author": "Vince",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "0.18.0",
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "1.18.3",
+    "bootstrap": "4.1.3",
+    "chalk": "2.4.1",
+    "cookie-parser": "1.4.3",
+    "debug": "3.1.0",
+    "ejs": "2.6.1",
+    "express": "4.16.3",
+    "express-session": "1.15.6",
+    "jquery": "3.3.1",
+    "lodash": "4.17.10",
+    "moment": "2.22.2",
+    "mongodb": "3.1.1",
+    "morgan": "1.9.0",
+    "mssql": "4.1.0",
+    "nodemon": "1.18.3",
+    "passport": "0.4.0",
+    "passport-local": "1.0.0",
+    "pug": "2.0.3",
+    "xml2js": "0.4.19"
+  },
+  "devDependencies": {
+    "eslint": "5.3.0",
+    "eslint-config-airbnb-base": "13.0.0",
+    "eslint-plugin-import": "2.13.0"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "ignore": [
+      "node_modules/**/node_modules"
+    ],
+    "delay": "1500",
+    "env": {
+      "NODE_ENV": "development",
+      "PORT": 3001
+    }
+  }
+}
