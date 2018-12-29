@@ -1,21 +1,16 @@
 const express = require('express');
 const path = require('path');
 const chalk = require('chalk');
-const debug = require('debug')('app');
 const morgan = require('morgan');
-const sql = require('mssql');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const { mssqlConfig } = require('./src/config/index');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 
 const app = express();
 const port = process.env.PORT || 3001;
-
-// sql
-//   .connect(mssqlConfig)
-//   .then(_ => debug('Successfully connected to the server!'))
-//   .catch(error => debug(error));
 
 app.use(morgan('tiny'));
 
@@ -46,7 +41,21 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  // Callback function when port is already opened.
-  debug(`Listening on port ${chalk.blue(port)}`);
+// Certificate options
+const options = {
+  key: fs.readFileSync(path.join(__dirname, 'certs', 'key.pem'), 'utf8'),
+  cert: fs.readFileSync(path.join(__dirname, 'certs', 'server.crt'), 'utf8'),
+};
+
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(options, app);
+
+// Listen to http
+httpServer.listen(3002, function() {
+  console.log(`Server listening on port ${chalk.blue(3002)}`);
+});
+
+// Listen to https
+httpsServer.listen(port, function() {
+  console.log(`Server listening on port ${chalk.blue(port)}`);
 });

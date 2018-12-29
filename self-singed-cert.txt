@@ -1,0 +1,5 @@
+/*
+  Generating Self Signed Certificate
+*/
+1. openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem 
+2. openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out server.crt

@@ -9,7 +9,7 @@ function passportConfig(app) {
   // Stores User in the session...
   passport.serializeUser((user, done) => {
     debug('serializeUser', user);
-    done(null, user, { scope: 'test' });
+    done(null, user);
   });
 
   // Retrieves User from the session

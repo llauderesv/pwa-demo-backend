@@ -4,6 +4,9 @@ const { MongoClient } = require('mongodb');
 const debug = require('debug')('app:localStrategy');
 const { mongoDBConfig } = require('../index');
 const bcrypt = require('bcrypt-nodejs');
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
 function localStrategy() {
   const userFields = {
@@ -17,7 +20,8 @@ function localStrategy() {
 function authenticate(email_address, password, done) {
   const { url, database } = mongoDBConfig;
 
-  (async function mongo() {
+  // Authentication Handler
+  (async function authenticateUser() {
     let client;
 
     try {
@@ -37,6 +41,7 @@ function authenticate(email_address, password, done) {
 
           if (res === true) {
             const { name, email_address } = user;
+            generateAccessToken({ name, email_address });
             done(null, { name, email_address });
           }
 
@@ -52,6 +57,19 @@ function authenticate(email_address, password, done) {
 
     client.close();
   })();
+}
+
+function generateAccessToken(payload) {
+  const options = { expiresIn: '1h', algorithm: 'RS256' };
+  // Require the certificate
+  const cert = fs.readFileSync(path.join('./', 'certs', 'key.pem'));
+  
+  jwt.sign(payload, cert, options, (error, token) => {
+    debug(error);
+    // if (error) throw new Error(error);
+
+    debug(`Access Token: ${token}`);
+  });
 }
 
 module.exports = localStrategy;
