@@ -12,6 +12,8 @@ const https = require('https');
 const app = express();
 const port = process.env.PORT || 3001;
 
+app.disable('x-powered-by');
+
 app.use(morgan('tiny'));
 
 // User Body Parser for submitting form...
@@ -28,13 +30,23 @@ require('./src/config/passport.js')(app);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Load external library files from node_modules...
-app.use('/css', express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css/')));
+app.use(
+  '/css',
+  express.static(path.join(__dirname, 'node_modules/bootstrap/dist/css/'))
+);
 app.set('views', path.join(__dirname, 'src/views'));
 app.set('view engine', 'ejs');
 
 const authRouter = require('./src/routes/authRoutes');
+const userRouter = require('./src/routes/userRoutes');
 
-app.use('/auth', authRouter);
+app.use('/auth', authRouter());
+app.use('/v1/user', userRouter());
+// Custom error handler...
+app.use((err, req, res, next) => {
+  res.status(500).json(err);
+});
+
 app.get('/', (req, res) => {
   res.render('index', {
     title: 'Home Page',

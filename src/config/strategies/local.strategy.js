@@ -1,8 +1,8 @@
 const passport = require('passport');
 const { Strategy } = require('passport-local');
 const { MongoClient } = require('mongodb');
-const debug = require('debug')('app:localStrategy');
 const { mongoDBConfig } = require('../index');
+const debug = require('debug')('app:localStrategy');
 const bcrypt = require('bcrypt-nodejs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -40,9 +40,12 @@ function authenticate(email_address, password, done) {
           if (err) done(null, false);
 
           if (res === true) {
-            const { name, email_address } = user;
-            generateAccessToken({ name, email_address });
-            done(null, { name, email_address });
+            const { _id, name, email_address } = user;
+            const options = { expiresIn: '1h', algorithm: 'RS256' };
+            const cert = fs.readFileSync(path.join('./', 'certs', 'key.pem'));
+            // Generate access token
+            const token = jwt.sign({ _id, name, email_address }, cert, options);
+            done(null, { token });
           }
 
           done(null, false);
@@ -57,19 +60,6 @@ function authenticate(email_address, password, done) {
 
     client.close();
   })();
-}
-
-function generateAccessToken(payload) {
-  const options = { expiresIn: '1h', algorithm: 'RS256' };
-  // Require the certificate
-  const cert = fs.readFileSync(path.join('./', 'certs', 'key.pem'));
-  
-  jwt.sign(payload, cert, options, (error, token) => {
-    debug(error);
-    // if (error) throw new Error(error);
-
-    debug(`Access Token: ${token}`);
-  });
 }
 
 module.exports = localStrategy;
