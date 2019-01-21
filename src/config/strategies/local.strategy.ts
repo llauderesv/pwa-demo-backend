@@ -35,34 +35,34 @@ function localStrategy() {
 
           if (user && user.password) {
             bcrypt.compare(password, user.password, (err, res) => {
-              if (err) done(undefined, false);
+              if (err) return done(undefined, false);
 
-              if (res === true) {
-                const { _id, name, email_address } = user;
-                const options = { expiresIn: '1h', algorithm: 'RS256' };
-                const cert = fs.readFileSync(
-                  path.join('./', 'certs', 'key.pem')
-                );
-                // Generate access token
-                const token = jwt.sign(
-                  { _id, name, email_address },
-                  cert,
-                  options
-                );
-                done(undefined, { token });
-              }
+              if (!res)
+                return done(undefined, false, {
+                  message: 'Invalid Email address or Password',
+                });
 
-              done(undefined, false);
+              const { _id, name, email_address } = user;
+              const options = { expiresIn: '1h', algorithm: 'RS256' };
+              const cert = fs.readFileSync(path.join('./', 'certs', 'key.pem'));
+              const token = jwt.sign(
+                { _id, name, email_address },
+                cert,
+                options
+              );
+
+              return done(undefined, { token });
             });
           } else {
-            done(undefined, false);
+            return done(undefined, false, {
+              message: 'Invalid Email address or Password',
+            });
           }
         } catch (error) {
           debug(`Error: ${error.stack}`);
-          done(undefined, false);
-        } finally {
-          client && client.close();
+          return done(undefined, false);
         }
+        client && client.close();
       })();
     })
   );

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 import path from 'path';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -38,10 +38,20 @@ app.use(express.static('./public'));
 app.use('/css', express.static('./node_modules/bootstrap/dist/css/'));
 app.set('views', path.join('./views'));
 app.set('view engine', 'ejs');
-app.use('/auth', authRouter());
-app.use('/v1/user', userRouter());
 
-// Custom Error handler...
+// Allow cors
+app.use(
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept'
+    );
+    next();
+  }
+);
+
+// Custom error handler...
 app.use(
   (
     err: Error,
@@ -53,6 +63,8 @@ app.use(
   }
 );
 
+app.use('/auth', authRouter());
+app.use('/v1/user', userRouter());
 app.get('/', (req, res) => {
   res.render('index', {
     title: 'Home Page',

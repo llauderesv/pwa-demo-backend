@@ -1,22 +1,31 @@
 import passport from 'passport';
-import { Request, Response } from 'express';
 import bcrypt from 'bcrypt-nodejs';
+import { Request, Response, NextFunction } from 'express';
 import { mongoDBConfig } from '../config/index';
 import { MongoClient } from 'mongodb';
-const debug = require('debug')('app:auth');
-
 import User from '../models/user';
 
-const signIn = [
-  passport.authenticate('local', { session: false }),
-  (req: Request, res: Response) => {
-    res.json({
-      data: <User>req.user,
-      message: 'Successfully Logged In.',
-      status: res.statusCode,
-    });
-  },
-];
+const debug = require('debug')('app:auth');
+
+const signIn = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('local', (err: Error, user: User, info) => {
+    if (err) return next(err);
+
+    if (!user) {
+      res.status(401);
+      return res.json({
+        message: info.message,
+        status: res.statusCode,
+      });
+    } else {
+      return res.json({
+        message: 'Successfully Sign In.',
+        data: <User>user,
+        status: res.statusCode,
+      });
+    }
+  })(req, res, next);
+};
 
 const signUp = (req: Request, res: Response) => {
   const { email_address, name, password } = <User>req.body;
