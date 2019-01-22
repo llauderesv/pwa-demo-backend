@@ -1,5 +1,5 @@
 FROM node:8
-# Create app directory
+# Create app directory inside Docker
 WORKDIR /usr/src/app
 
 # Install app dependencies
